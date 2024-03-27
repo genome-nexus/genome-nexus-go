@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	pubgn "github.com/averyniceday/go-mpath-proto/genome-nexus-public-api"
+	pubgn "github.com/mskcc/mskprotobuf/genome-nexus-public-api"
 )
 
 // TODO add summary statistics
@@ -30,9 +30,9 @@ func GetVariantAnnotations(genomicLocations []pubgn.GenomicLocation) []pubgn.Var
 	fmt.Println("sigh \n\n\n\n")
 	fmt.Println(r.Request)
 	fmt.Println(r.Header)
-	// https://github.com/averyniceday/go-mpath-proto/blob/16d6085cee926ad85fc29c6c62319ee3697edcf2/genome-nexus-public-api/api_annotation_controller.go#L218
+	// https://github.com/mskcc/go-mpath-proto/blob/16d6085cee926ad85fc29c6c62319ee3697edcf2/genome-nexus-public-api/api_annotation_controller.go#L218
 	// response from `FetchVariantAnnotationByGenomicLocationPOST`: []VariantAnnotation, *http.Response, error
-	// VariantAnnotation defined here: https://github.com/averyniceday/go-mpath-proto/blob/16d6085cee926ad85fc29c6c62319ee3697edcf2/genome-nexus-internal-api/model_variant_annotation.go#L21
+	// VariantAnnotation defined here: https://github.com/mskcc/go-mpath-proto/blob/16d6085cee926ad85fc29c6c62319ee3697edcf2/genome-nexus-internal-api/model_variant_annotation.go#L21
 	for i := 0; i < len(variantAnnotations); i++ {
 		if !*variantAnnotations[i].SuccessfullyAnnotated {
 			fmt.Println("ERROR: Failed to annotate: ", variantAnnotations[i].Variant)
