@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	pubgn "github.com/mskcc/mskprotobuf/genome-nexus-public-api"
+	pubgn "github.com/genome-nexus/genome-nexus-go-api-client/genome-nexus-public-api"
 )
 
 // TODO add summary statistics
