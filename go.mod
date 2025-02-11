@@ -1,6 +1,6 @@
 module github.com/genome-nexus/genome-nexus-go
 
-go 1.20
+go 1.23.6
 
 require github.com/mskcc/mskprotobuf v0.0.0-20240327201956-36bbced211d1
 
