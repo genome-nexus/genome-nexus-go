@@ -1,3 +1,5 @@
+github.com/genome-nexus/genome-nexus-go-api-client v0.0.0-20250210221327-decebe8bc9f5 h1:8PLHM4aJSarZo3jRxhcN+niCwXV9CTEzZ/SsD8gjiF8=
+github.com/genome-nexus/genome-nexus-go-api-client v0.0.0-20250210221327-decebe8bc9f5/go.mod h1:qTX3npaaL2wO0ODCuFyfyM4mCZSz1zzYhYn9uoF/YHM=
 github.com/golang/protobuf v1.3.1/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
 github.com/golang/protobuf v1.5.3 h1:KhyjKVUg7Usr/dYsdSqoFveMYd5ko72D+zANwlG1mmg=
@@ -6,6 +8,8 @@ github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/mskcc/mskprotobuf v0.0.0-20240327201956-36bbced211d1 h1:IZUcsIYr0sfw7amO0g8uJeuV9i/9wW3aUYurOoxrnCY=
 github.com/mskcc/mskprotobuf v0.0.0-20240327201956-36bbced211d1/go.mod h1:Y1mk8tWhOQJMffGd8IS18RkE9zt4ouZJvXYmZwT1oyU=
+github.mskcc.org/cdsi/cdsi-protobuf/tempo v0.0.0-20250415074137-c14c128750a1 h1:Ir7F8jwlGepI9qrwK3/0ghzO5A1vnkwHGS8C2OjlMxc=
+github.mskcc.org/cdsi/cdsi-protobuf/tempo v0.0.0-20250415074137-c14c128750a1/go.mod h1:44+7sRJBb1H8FHmIrH8kZYYmUqDsVmTa681es8rl7tA=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/net v0.0.0-20190603091049-60506f45cf65/go.mod h1:HSz+uSET+XFnRR8LxR5pz3Of3rY3CfYBVs4xY44aLks=
 golang.org/x/net v0.22.0 h1:9sGLhx7iRIHEiX0oAJ3MRZMUCElJgy7Br1nO+AMN3Tc=
@@ -23,3 +27,5 @@ google.golang.org/protobuf v1.26.0-rc.1/go.mod h1:jlhhOSvTdKEhbULTjvd4ARK9grFBp0
 google.golang.org/protobuf v1.26.0/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
 google.golang.org/protobuf v1.31.0 h1:g0LDEJHgrBl9N9r17Ru3sqWhkIx2NB67okBHPwC7hs8=
 google.golang.org/protobuf v1.31.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
+google.golang.org/protobuf v1.36.5 h1:tPhr+woSbjfYvY6/GPufUoYizxw1cF/yFoxJ2fmpwlM=
+google.golang.org/protobuf v1.36.5/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=
