@@ -1,4 +1,4 @@
-github.com/genome-nexus/genome-nexus-go
+module github.com/genome-nexus/genome-nexus-go
 
 go 1.23.6
 
