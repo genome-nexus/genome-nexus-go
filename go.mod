@@ -1,4 +1,4 @@
-module github.com/genome-nexus/genome-nexus-go
+module gn-annotator 
 
 go 1.23.6
 
