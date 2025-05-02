@@ -10,31 +10,41 @@ import (
 	tt "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v1/go"
 )
 
-// maf files for testing were obtained by grabbing the following fields from the OncoKB annotated clinical impact MAF
-// cut -f1,2,4,6,7,10,17,40,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152 data_mutations_extended.oncokb.txt > ~/prgs/cdsi/oncokb-annotator/data_mutations_extended.oncokb.trimmed.txt
-// clinical sample files for testing were obtained by grabbing the following fields from the OncoKB annotated clinical impact sample clinicalFile
-// cut -f1,7,17 ~/prgs/cbio/cbio-portal-data/oncokb-annotated-msk-impact/data_clinical_sample.oncokb.txt > ~/prgs/cdsi/oncokb-annotator/testdata/data_clinical_sample.oncokb.trimmed.txt
+// testdata generated using genome-nexus-annotation-pipeline (Java) annotated MAF
+// with the following properties:
+//
+// -Dgenomenexus.enrichment_fields=annotation_summary,sift,polyphen (application.properties)
+// -i<isoform_override=mskcc (cmdline arg)
+//
+// test can break if genome nexus is updated, in which case rerun (example below) and save new testdata
+// $JAVA_BINARY -Dgenomenexus.enrichment_fields=annotation_summary,sift,polyphen -jar annotator.jar -f <inputmaf> -o <outputmaf> -i mskcc
+
 const (
-	mutationRecordsJSON = "testdata/output.json"
+	mutationRecordsJSON = "testdata/tempo_message.annotated.json"
+	//mutationRecordsJSON = "testdata/tempo_message.100k.annotated.json"
 )
 
+type Testset struct {
+	Records []tt.TempoMessage `json:"records"`
+}
+
 func TestAnnotateMutations(t *testing.T) {
-	tm := readMAF(t, mutationRecordsJSON) // this is a TempoMessage struct with X events for testing (completely populated)
-	for _, testtm := range tm.Records {
-		annotatedtm := AnnotateTempoMessageEvents(testtm)
-		for i, event := range testtm.Events {
-			assertNoError(t, testtm.CmoSampleId, event, annotatedtm[i])
+	testset := readTestSetJSON(t, mutationRecordsJSON) // this is a TempoMessage struct with X events for testing (completely populated)
+	// for every tempo message in the set set
+	for _, tm := range testset.Records {
+		// make a deep copy
+		testtm := tt.TempoMessage{}
+		b, _ := json.Marshal(tm)
+		json.Unmarshal(b, &testtm)
+		// annotate and compare
+		AnnotateTempoMessageEvents(&testtm)
+		for i2, event := range(testtm.Events) {
+			assertNoError(t, tm.CmoSampleId, event, tm.Events[i2])
 		}
 	}
 }
 
-type Testset struct {
-	Records []tt.TempoMessage `json:"records"`
-	Myname  string            `json:"myname"`
-}
-
-// Unmarshal JSON representing a tempo message
-func readMAF(t testing.TB, mafFile string) Testset {
+func readTestSetJSON(t testing.TB, mafFile string) Testset {
 	mafData, err := os.ReadFile(mafFile)
 	if err != nil {
 		t.Fatalf("Failed to read MAF records from JSON %q: %v", mafFile, err)
@@ -44,9 +54,8 @@ func readMAF(t testing.TB, mafFile string) Testset {
 	var tempoMessages Testset
 	err = json.Unmarshal(mafData, &tempoMessages)
 	if err != nil {
-		t.Fatalf("THIS SUCKS")
+		t.Fatalf("Unable to unmarshal test data")
 	}
-	fmt.Println(tempoMessages.Myname)
 	return tempoMessages
 }
 
@@ -229,9 +238,6 @@ func assertNoError(t testing.TB, s string, e *tt.Event, ae *tt.Event) {
 	if !strings.EqualFold(e.SiftScore, ae.SiftScore) {
 		t.Errorf("patient: %q; field: %q; expected %q but got %q", s, fieldMap[42], e.SiftScore, ae.SiftScore)
 	}
-	//if !strings.EqualFold(e.GenomicLocationExplanation, ae.GenomicLocationExplanation) {
-	//	t.Errorf("patient: %q; field: %q; expected %q but got %q", s, fieldMap[43], e.GenomicLocationExplanation, ae.GenomicLocationExplanation)
-	//}
 	if !strings.EqualFold(e.AnnotationStatus, ae.AnnotationStatus) {
 		t.Errorf("patient: %q; field: %q; expected %q but got %q", s, fieldMap[44], e.AnnotationStatus, ae.AnnotationStatus)
 	}
