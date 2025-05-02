@@ -1,12 +1,12 @@
-package tempo_databricks_gateway
+package genome_nexus_annotator_go
 
 import (
 	"regexp"
 	"strconv"
 	"strings"
 
-	tempotype "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v1/go"
 	gnapi "github.com/genome-nexus/genome-nexus-go-api-client/genome-nexus-public-api"
+	tempotype "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v1/go"
 )
 
 /*
@@ -14,24 +14,18 @@ Utility functions for resolving response (variant annotation) from genome nexus
 against CVR-specific data (tempotype.Event)
 */
 
-const defaultBuildNumber string = "37"
-const defaultStrand string = "+"
+const (
+	defaultBuildNumber string = "37"
+	defaultStrand      string = "+"
+)
 
-var dbeventRsidRegex = regexp.MustCompile("^(rs\\d*)$")
-var proteinPositionRegex = regexp.MustCompile("p.[A-Za-z]([0-9]*).*$")
-var validNucleotidesRegex = regexp.MustCompile("^([ATGC]*)$")
+var (
+	dbeventRsidRegex      = regexp.MustCompile("^(rs\\d*)$")
+	proteinPositionRegex  = regexp.MustCompile("p.[A-Za-z]([0-9]*).*$")
+	validNucleotidesRegex = regexp.MustCompile("^([ATGC]*)$")
+)
 
-/*
-func CalculateTRefCount(event tempotype.Event) string {
-	return strconv.Itoa(int(event.TumorDp - event.TumorAd))
-}
-
-func CalculateNRefCount(event tempotype.Event) string {
-	return strconv.Itoa(int(event.NormalDp - event.NormalAd))
-}
-*/
-
-func ResolveSiftScore(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveSiftScore(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) && canonicalTranscript.SiftScore != nil {
 		if *canonicalTranscript.SiftScore == float64(int64(*canonicalTranscript.SiftScore)) {
 			return strconv.FormatFloat(*canonicalTranscript.SiftScore, 'f', 1, 64)
@@ -41,15 +35,14 @@ func ResolveSiftScore(canonicalTranscript gnapi.TranscriptConsequenceSummary) st
 	return ""
 }
 
-
-func ResolveSiftPrediction(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveSiftPrediction(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) && canonicalTranscript.SiftPrediction != nil {
 		return *canonicalTranscript.SiftPrediction
 	}
 	return ""
 }
 
-func ResolvePolyphenScore(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolvePolyphenScore(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) && canonicalTranscript.PolyphenScore != nil {
 		if *canonicalTranscript.PolyphenScore == float64(int64(*canonicalTranscript.PolyphenScore)) {
 			return strconv.FormatFloat(*canonicalTranscript.PolyphenScore, 'f', 1, 64)
@@ -59,15 +52,14 @@ func ResolvePolyphenScore(canonicalTranscript gnapi.TranscriptConsequenceSummary
 	return ""
 }
 
-
-func ResolvePolyphenPrediction(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolvePolyphenPrediction(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) && canonicalTranscript.PolyphenPrediction != nil {
 		return *canonicalTranscript.PolyphenPrediction
 	}
 	return ""
 }
 
-func GetCanonicalTranscript(gnResponse gnapi.VariantAnnotation) gnapi.TranscriptConsequenceSummary {
+func getCanonicalTranscript(gnResponse gnapi.VariantAnnotation) gnapi.TranscriptConsequenceSummary {
 	// TODO: Handle case where we return empty struct
 	if gnResponse.AnnotationSummary != nil &&
 		gnResponse.AnnotationSummary.TranscriptConsequences != nil &&
@@ -77,14 +69,14 @@ func GetCanonicalTranscript(gnResponse gnapi.VariantAnnotation) gnapi.Transcript
 	return gnapi.TranscriptConsequenceSummary{}
 }
 
-func ResolveHugoSymbol(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveHugoSymbol(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) && canonicalTranscript.HugoGeneSymbol != nil {
 		return *canonicalTranscript.HugoGeneSymbol
 	}
 	return "FAILED"
 }
 
-func ResolveEntrezGeneId(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveEntrezGeneId(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	// TODO is this okay to return 0 if canonicalTranscript.EntrezGeneId is empty?
 	if canonicalTranscript == (gnapi.TranscriptConsequenceSummary{}) || canonicalTranscript.EntrezGeneId == nil {
 		return ""
@@ -92,14 +84,14 @@ func ResolveEntrezGeneId(canonicalTranscript gnapi.TranscriptConsequenceSummary)
 	return *canonicalTranscript.EntrezGeneId
 }
 
-func ResolveAssemblyName(gnResponse gnapi.VariantAnnotation) string {
+func resolveAssemblyName(gnResponse gnapi.VariantAnnotation) string {
 	if gnResponse.AssemblyName == nil {
 		return defaultBuildNumber
 	}
 	return *gnResponse.AssemblyName
 }
 
-func ResolveChromosome(gnResponse gnapi.VariantAnnotation, genomicLocation gnapi.GenomicLocation) string {
+func resolveChromosome(gnResponse gnapi.VariantAnnotation, genomicLocation gnapi.GenomicLocation) string {
 	if gnResponse.AnnotationSummary != nil {
 		chromosome, ok := gnResponse.AnnotationSummary.GenomicLocation.GetChromosomeOk()
 		if ok {
@@ -109,26 +101,26 @@ func ResolveChromosome(gnResponse gnapi.VariantAnnotation, genomicLocation gnapi
 	return genomicLocation.Chromosome
 }
 
-func ResolveStart(gnResponse gnapi.VariantAnnotation, genomicLocation gnapi.GenomicLocation) string {
-        // Try to get start from VariantAnnotation
-        if gnResponse.AnnotationSummary != nil {
-                start, ok := gnResponse.AnnotationSummary.GenomicLocation.GetStartOk()
-                if ok {
-                        return strconv.Itoa(int(*start))
-                }
-        }
+func resolveStart(gnResponse gnapi.VariantAnnotation, genomicLocation gnapi.GenomicLocation) string {
+	// Try to get start from VariantAnnotation
+	if gnResponse.AnnotationSummary != nil {
+		start, ok := gnResponse.AnnotationSummary.GenomicLocation.GetStartOk()
+		if ok {
+			return strconv.Itoa(int(*start))
+		}
+	}
 
-        // Else try to get start from GenomicLocation
-        start, ok := genomicLocation.GetStartOk()
-        if ok {
-                return strconv.Itoa(int(*start))
-        }
+	// Else try to get start from GenomicLocation
+	start, ok := genomicLocation.GetStartOk()
+	if ok {
+		return strconv.Itoa(int(*start))
+	}
 
-        // Return empty string otherwise
-        return ""
+	// Return empty string otherwise
+	return ""
 }
 
-func ResolveEnd(gnResponse gnapi.VariantAnnotation, genomicLocation gnapi.GenomicLocation) string {
+func resolveEnd(gnResponse gnapi.VariantAnnotation, genomicLocation gnapi.GenomicLocation) string {
 	// Try to get end from VariantAnnotation
 	if gnResponse.AnnotationSummary != nil {
 		end, ok := gnResponse.AnnotationSummary.GenomicLocation.GetEndOk()
@@ -147,14 +139,14 @@ func ResolveEnd(gnResponse gnapi.VariantAnnotation, genomicLocation gnapi.Genomi
 	return ""
 }
 
-func ResolveStrandSign(gnResponse gnapi.VariantAnnotation) string {
+func resolveStrandSign(gnResponse gnapi.VariantAnnotation) string {
 	if gnResponse.AnnotationSummary != nil && gnResponse.AnnotationSummary.StrandSign != nil {
 		return *gnResponse.AnnotationSummary.StrandSign
 	}
 	return defaultStrand
 }
 
-func ResolveVariantClassification(canonicalTranscript gnapi.TranscriptConsequenceSummary, event tempotype.Event) string {
+func resolveVariantClassification(canonicalTranscript gnapi.TranscriptConsequenceSummary, event tempotype.Event) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) &&
 		canonicalTranscript.VariantClassification != nil {
 		return *canonicalTranscript.VariantClassification
@@ -163,14 +155,14 @@ func ResolveVariantClassification(canonicalTranscript gnapi.TranscriptConsequenc
 }
 
 // NOTE: Why don't we get the variant type from resolveCVRVariantType if AnnotationSummary.VariantType is empty?
-func ResolveVariantType(gnResponse gnapi.VariantAnnotation) string {
+func resolveVariantType(gnResponse gnapi.VariantAnnotation) string {
 	if gnResponse.AnnotationSummary != nil && gnResponse.AnnotationSummary.VariantType != nil {
 		return *gnResponse.AnnotationSummary.VariantType
 	}
 	return ""
 }
 
-func ResolveDbSnpRs(gnResponse gnapi.VariantAnnotation) string {
+func resolveDbSnpRs(gnResponse gnapi.VariantAnnotation) string {
 	if gnResponse.ColocatedVariants != nil && len(gnResponse.ColocatedVariants) > 0 {
 		for _, cv := range gnResponse.ColocatedVariants {
 			// TODO check if DbSnpId is nil?
@@ -183,28 +175,28 @@ func ResolveDbSnpRs(gnResponse gnapi.VariantAnnotation) string {
 	return ""
 }
 
-func ResolveHgvsc(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveHgvsc(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) && canonicalTranscript.Hgvsc != nil {
 		return *canonicalTranscript.Hgvsc
 	}
 	return ""
 }
 
-func ResolveHgvsp(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveHgvsp(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) && canonicalTranscript.Hgvsp != nil {
 		return *canonicalTranscript.Hgvsp
 	}
 	return ""
 }
 
-func ResolveHgvspShort(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveHgvspShort(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) && canonicalTranscript.HgvspShort != nil {
 		return *canonicalTranscript.HgvspShort
 	}
 	return ""
 }
 
-func ResolveTranscriptId(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveTranscriptId(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) {
 		transcriptId, ok := canonicalTranscript.GetTranscriptIdOk()
 		if ok {
@@ -214,14 +206,14 @@ func ResolveTranscriptId(canonicalTranscript gnapi.TranscriptConsequenceSummary)
 	return ""
 }
 
-func ResolveRefSeq(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveRefSeq(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) && canonicalTranscript.RefSeq != nil {
 		return *canonicalTranscript.RefSeq
 	}
 	return ""
 }
 
-func ResolveProteinPosStart(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveProteinPosStart(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) {
 		start, ok := canonicalTranscript.ProteinPosition.GetStartOk()
 		if ok {
@@ -231,7 +223,7 @@ func ResolveProteinPosStart(canonicalTranscript gnapi.TranscriptConsequenceSumma
 	return ""
 }
 
-func ResolveProteinPosEnd(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveProteinPosEnd(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) {
 		end, ok := canonicalTranscript.ProteinPosition.GetEndOk()
 		if ok {
@@ -241,24 +233,24 @@ func ResolveProteinPosEnd(canonicalTranscript gnapi.TranscriptConsequenceSummary
 	return ""
 }
 
-func ResolveCodonChange(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveCodonChange(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) && canonicalTranscript.CodonChange != nil {
 		return *canonicalTranscript.CodonChange
 	}
 	return ""
 }
 
-func ResolveConsequence(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveConsequence(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) && canonicalTranscript.ConsequenceTerms != nil {
 		return *canonicalTranscript.ConsequenceTerms
 	}
 	return ""
 }
 
-func ResolveProteinPosition(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveProteinPosition(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) {
-		var proteinPosStart string = ResolveProteinPosStart(canonicalTranscript)
-		var hgvspShort string = ResolveHgvspShort(canonicalTranscript)
+		var proteinPosStart string = resolveProteinPosStart(canonicalTranscript)
+		var hgvspShort string = resolveHgvspShort(canonicalTranscript)
 		if proteinPosStart != "" {
 			return proteinPosStart
 		} else if hgvspShort != "" {
@@ -273,14 +265,14 @@ func ResolveProteinPosition(canonicalTranscript gnapi.TranscriptConsequenceSumma
 	return ""
 }
 
-func ResolveExon(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
+func resolveExon(canonicalTranscript gnapi.TranscriptConsequenceSummary) string {
 	if canonicalTranscript != (gnapi.TranscriptConsequenceSummary{}) && canonicalTranscript.Exon != nil {
 		return *canonicalTranscript.Exon
 	}
 	return ""
 }
 
-func ResolveReferenceAllele(gnResponse gnapi.VariantAnnotation, event tempotype.Event) string {
+func resolveReferenceAllele(gnResponse gnapi.VariantAnnotation, event tempotype.Event) string {
 	if gnResponse.AnnotationSummary != nil {
 		referenceAllele, ok := gnResponse.AnnotationSummary.GenomicLocation.GetReferenceAlleleOk()
 		if ok {
@@ -290,17 +282,17 @@ func ResolveReferenceAllele(gnResponse gnapi.VariantAnnotation, event tempotype.
 	return event.ReferenceAllele
 }
 
-func ResolveTumorSeqAllele(gnResponse gnapi.VariantAnnotation, event tempotype.Event) string {
+func resolveTumorSeqAllele(gnResponse gnapi.VariantAnnotation, event tempotype.Event) string {
 	if gnResponse.AnnotationSummary != nil {
 		variantAllele, ok := gnResponse.AnnotationSummary.GenomicLocation.GetVariantAlleleOk()
 		if ok {
 			return *variantAllele
 		}
 	}
-	return ResolveTumorSeqAlleleFromInput(event.ReferenceAllele, event.TumorSeqAllele1, event.TumorSeqAllele2)
+	return resolveTumorSeqAlleleFromInput(event.ReferenceAllele, event.TumorSeqAllele1, event.TumorSeqAllele2)
 }
 
-func ResolveTumorSeqAlleleFromInput(referenceAllele string, tumorSeqAllele1 string, tumorSeqAllele2 string) string {
+func resolveTumorSeqAlleleFromInput(referenceAllele string, tumorSeqAllele1 string, tumorSeqAllele2 string) string {
 	// Note below functionality comes from here: https://github.com/cBioPortal/cbioportal/blob/2c107f919e5ef959379b94e058acf41341571202/maf/src/main/java/org/mskcc/cbio/maf/MafUtil.java#L739-L774
 	// Sanity check tumor seq allele 1 and 2 for valid/non-null values
 	if (tumorSeqAllele1 == "" || strings.EqualFold(tumorSeqAllele1, "NA")) &&
@@ -314,7 +306,7 @@ func ResolveTumorSeqAlleleFromInput(referenceAllele string, tumorSeqAllele1 stri
 		return tumorSeqAllele2
 	} else if tumorSeqAllele2 == "" || strings.EqualFold(tumorSeqAllele2, "NA") || tumorSeqAllele2 == referenceAllele {
 		return tumorSeqAllele1
-	} else if VariantContainsAmbiguousTumorSeqAllele(referenceAllele, tumorSeqAllele1, tumorSeqAllele2) {
+	} else if variantContainsAmbiguousTumorSeqAllele(referenceAllele, tumorSeqAllele1, tumorSeqAllele2) {
 		if tumorSeqAllele2 == "-" {
 			return tumorSeqAllele1
 		}
@@ -325,7 +317,7 @@ func ResolveTumorSeqAlleleFromInput(referenceAllele string, tumorSeqAllele1 stri
 
 // This function returns true when one tumorSeqAllele is a '-' and one contains a valid nucleotide pattern
 // In all other cases it returns false, including if both tumorSeqAlleles contain valid nucleotide patterns
-func VariantContainsAmbiguousTumorSeqAllele(referenceAllele string, tumorSeqAllele1 string, tumorSeqAllele2 string) bool {
+func variantContainsAmbiguousTumorSeqAllele(referenceAllele string, tumorSeqAllele1 string, tumorSeqAllele2 string) bool {
 	// Tumor seq allele 1 or 2 is null type or equal to ref allele - return false
 	if tumorSeqAllele1 == "" || strings.EqualFold(tumorSeqAllele1, "NA") || tumorSeqAllele1 == referenceAllele ||
 		tumorSeqAllele2 == "" || strings.EqualFold(tumorSeqAllele2, "NA") || tumorSeqAllele2 == referenceAllele {
@@ -338,14 +330,14 @@ func VariantContainsAmbiguousTumorSeqAllele(referenceAllele string, tumorSeqAlle
 			validNucleotidesRegex.MatchString(strings.ToUpper(tumorSeqAllele2)))
 }
 
-func ResolveRefAndTumorSeqAlleles(gnResponse gnapi.VariantAnnotation, event tempotype.Event, stripMatchingBases string) (string, string, string) {
-	resolvedReferenceAllele := ResolveReferenceAllele(gnResponse, event)
+func resolveRefAndTumorSeqAlleles(gnResponse gnapi.VariantAnnotation, event tempotype.Event, stripMatchingBases string) (string, string, string) {
+	resolvedReferenceAllele := resolveReferenceAllele(gnResponse, event)
 	resolvedTumorSeqAllele1 := event.ReferenceAllele
-	resolvedTumorSeqAllele2 := ResolveTumorSeqAllele(gnResponse, event)
+	resolvedTumorSeqAllele2 := resolveTumorSeqAllele(gnResponse, event)
 
 	// Get tumorSeqAllele from input, it could be from tumorSeqAllele2 or tumorSeqAllele1
 	// Logic is here: https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/java/org/mskcc/cbio/maf/MafUtil.java#L811
-	resolvedTumorSeqAlleleFromInput := ResolveTumorSeqAlleleFromInput(event.ReferenceAllele, event.TumorSeqAllele1, event.TumorSeqAllele2)
+	resolvedTumorSeqAlleleFromInput := resolveTumorSeqAlleleFromInput(event.ReferenceAllele, event.TumorSeqAllele1, event.TumorSeqAllele2)
 
 	// If keep all allele bases
 	if stripMatchingBases == "none" {

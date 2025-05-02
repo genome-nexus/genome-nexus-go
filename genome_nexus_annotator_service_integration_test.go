@@ -1,12 +1,13 @@
-package tempo_databricks_gateway
+package genome_nexus_annotator_go
 
 import (
-	"testing"
-	"fmt"
-  	"os"
-	tt "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v1/go"
 	"encoding/json"
+	"fmt"
+	"os"
 	"strings"
+	"testing"
+
+	tt "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v1/go"
 )
 
 // maf files for testing were obtained by grabbing the following fields from the OncoKB annotated clinical impact MAF
@@ -21,7 +22,7 @@ func TestAnnotateMutations(t *testing.T) {
 	tm := readMAF(t, mutationRecordsJSON) // this is a TempoMessage struct with X events for testing (completely populated)
 	for _, testtm := range tm.Records {
 		annotatedtm := AnnotateTempoMessageEvents(testtm)
-		for i, event := range(testtm.Events) {
+		for i, event := range testtm.Events {
 			assertNoError(t, testtm.CmoSampleId, event, annotatedtm[i])
 		}
 	}
@@ -29,27 +30,25 @@ func TestAnnotateMutations(t *testing.T) {
 
 type Testset struct {
 	Records []tt.TempoMessage `json:"records"`
-	Myname string `json:"myname"`
+	Myname  string            `json:"myname"`
 }
 
 // Unmarshal JSON representing a tempo message
 func readMAF(t testing.TB, mafFile string) Testset {
 	mafData, err := os.ReadFile(mafFile)
-  	if err != nil {
+	if err != nil {
 		t.Fatalf("Failed to read MAF records from JSON %q: %v", mafFile, err)
 	}
 
-  	//var tempoMessage tt.TempoMessage
+	//var tempoMessage tt.TempoMessage
 	var tempoMessages Testset
-  	err = json.Unmarshal(mafData, &tempoMessages)
+	err = json.Unmarshal(mafData, &tempoMessages)
 	if err != nil {
 		t.Fatalf("THIS SUCKS")
 	}
 	fmt.Println(tempoMessages.Myname)
 	return tempoMessages
 }
-
-
 
 var fieldMap = map[int]string{
 	0:  "Chromosome",
@@ -117,7 +116,7 @@ func assertNoError(t testing.TB, s string, e *tt.Event, ae *tt.Event) {
 		t.Errorf("patient: %q; field: %q; expected %q but got %q", s, fieldMap[4], e.TumorSeqAllele1, ae.TumorSeqAllele1)
 	}
 	if !strings.EqualFold(e.TumorSeqAllele2, ae.TumorSeqAllele2) {
-		t.Errorf("patient: %q; field: %q; expected %q but got %q", s, fieldMap[5], e.TumorSeqAllele2, ae.TumorSeqAllele2,)
+		t.Errorf("patient: %q; field: %q; expected %q but got %q", s, fieldMap[5], e.TumorSeqAllele2, ae.TumorSeqAllele2)
 	}
 	if !strings.EqualFold(e.Strand, ae.Strand) {
 		t.Errorf("patient: %q; field: %q; expected %q but got %q", s, fieldMap[6], e.Strand, ae.Strand)
