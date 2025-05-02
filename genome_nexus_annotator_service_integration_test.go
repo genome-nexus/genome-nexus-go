@@ -2,7 +2,6 @@ package genome_nexus_annotator_go
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -22,6 +21,7 @@ import (
 const (
 	mutationRecordsJSON = "testdata/tempo_message.annotated.json"
 	//mutationRecordsJSON = "testdata/tempo_message.100k.annotated.json"
+	isoformOverrideString = "mskcc"
 )
 
 type Testset struct {
@@ -37,7 +37,7 @@ func TestAnnotateMutations(t *testing.T) {
 		b, _ := json.Marshal(tm)
 		json.Unmarshal(b, &testtm)
 		// annotate and compare
-		AnnotateTempoMessageEvents(&testtm)
+		AnnotateTempoMessageEvents(isoformOverrideString, &testtm)
 		for i2, event := range(testtm.Events) {
 			assertNoError(t, tm.CmoSampleId, event, tm.Events[i2])
 		}
