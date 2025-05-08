@@ -9,15 +9,40 @@ import (
 	tt "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v1/go"
 )
 
-func AnnotateTempoMessageEvents(isoformOverrideSource string, tm *tt.TempoMessage) error {
+type GNAnnotatorService struct {
+	client         *gnapi.APIClient
+	ctxAccessToken context.Context
+	token          string
+}
+
+func NewGNAnnotatorService(ctx context.Context, token, gnURL string) (*GNAnnotatorService, error) {
+	if len(gnURL) == 0 {
+		return nil, fmt.Errorf("gnURL: %q needs to be valid", gnURL)
+	}
+	cfg := gnapi.NewConfiguration()
+	cfg.Servers = gnapi.ServerConfigurations{
+		{
+			URL:         gnURL,
+			Description: "Genome Nexus Annotation Server",
+		},
+	}
+	client := gnapi.NewAPIClient(cfg)
+	if len(token) > 0 {
+		ctx = context.WithValue(ctx, gnapi.ContextAccessToken, token)
+	}
+	return &GNAnnotatorService{client: client, ctxAccessToken: ctx, token: token}, nil
+
+}
+
+func (gn *GNAnnotatorService) AnnotateTempoMessageEvents(isoformOverrideSource string, tm *tt.TempoMessage) error {
 	// prepare genomic locations for annotation
 	genomicLocations := make([]gnapi.GenomicLocation, 0)
 	for _, a := range tm.Events {
-		loc := getGenomicLocation(a)
+		loc := gn.getGenomicLocation(a)
 		genomicLocations = append(genomicLocations, loc)
 	}
 
-	variantAnnotations, err := getVariantAnnotations(isoformOverrideSource, genomicLocations)
+	variantAnnotations, err := gn.getVariantAnnotations(isoformOverrideSource, genomicLocations)
 	if err != nil {
 		return err
 	}
@@ -27,7 +52,7 @@ func AnnotateTempoMessageEvents(isoformOverrideSource string, tm *tt.TempoMessag
 
 	// construct a list of annotated events using genome nexus response
 	for i, variantAnnotation := range variantAnnotations {
-		err = mapResponseToEvent(variantAnnotation, genomicLocations[i], tm.Events[i])
+		err = gn.mapResponseToEvent(variantAnnotation, genomicLocations[i], tm.Events[i])
 		if err != nil {
 			return err
 		}
@@ -35,7 +60,7 @@ func AnnotateTempoMessageEvents(isoformOverrideSource string, tm *tt.TempoMessag
 	return nil
 }
 
-func getGenomicLocation(e *tt.Event) gnapi.GenomicLocation {
+func (gn *GNAnnotatorService) getGenomicLocation(e *tt.Event) gnapi.GenomicLocation {
 	start, _ := strconv.ParseInt(e.StartPosition, 10, 32)
 	end, _ := strconv.ParseInt(e.StartPosition, 10, 32)
 
@@ -47,18 +72,13 @@ func getGenomicLocation(e *tt.Event) gnapi.GenomicLocation {
 	return *gloc
 }
 
-func getVariantAnnotations(isoformOverrideSource string, genomicLocations []gnapi.GenomicLocation) ([]gnapi.VariantAnnotation, error) {
-	var token = ""
+func (gn *GNAnnotatorService) getVariantAnnotations(isoformOverrideSource string, genomicLocations []gnapi.GenomicLocation) ([]gnapi.VariantAnnotation, error) {
 	fields := make([]string, 0)
 	fields = append(fields, "annotation_summary")
-	configuration := gnapi.NewConfiguration()
-	apiClient := gnapi.NewAPIClient(configuration)
-
-	ctx := context.WithValue(context.Background(), gnapi.ContextServerIndex, 1)
-	x := apiClient.AnnotationControllerApi.FetchVariantAnnotationByGenomicLocationPOST(ctx).GenomicLocations(genomicLocations)
+	x := gn.client.AnnotationControllerApi.FetchVariantAnnotationByGenomicLocationPOST(gn.ctxAccessToken).GenomicLocations(genomicLocations)
 	x = x.Fields(fields)
 	x = x.IsoformOverrideSource(isoformOverrideSource)
-	x = x.Token(token)
+	x = x.Token(gn.token)
 
 	variantAnnotations, r, err := x.Execute()
 	if err != nil {
@@ -67,7 +87,7 @@ func getVariantAnnotations(isoformOverrideSource string, genomicLocations []gnap
 	return variantAnnotations, nil
 }
 
-func mapResponseToEvent(variantAnnotation gnapi.VariantAnnotation, genomicLocation gnapi.GenomicLocation, event *tt.Event) error {
+func (gn *GNAnnotatorService) mapResponseToEvent(variantAnnotation gnapi.VariantAnnotation, genomicLocation gnapi.GenomicLocation, event *tt.Event) error {
 	if !*variantAnnotation.SuccessfullyAnnotated {
 		event.AnnotationStatus = "FAILED"
 		return fmt.Errorf("Unsuccessful variant annotation for genomicLocation: %v", variantAnnotation)

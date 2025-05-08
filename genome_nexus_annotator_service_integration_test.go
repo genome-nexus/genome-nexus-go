@@ -1,6 +1,7 @@
 package genome_nexus_annotator_go
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"strings"
@@ -19,8 +20,9 @@ import (
 // $JAVA_BINARY -Dgenomenexus.enrichment_fields=annotation_summary,sift,polyphen -jar annotator.jar -f <inputmaf> -o <outputmaf> -i mskcc
 
 const (
-	mutationRecordsJSON = "testdata/tempo_message.annotated.json"
-	//mutationRecordsJSON = "testdata/tempo_message.100k.annotated.json"
+	token                 = ""
+	gnURL                 = "http://www.genomenexus.org"
+	mutationRecordsJSON   = "testdata/tempo_message.annotated.json"
 	isoformOverrideString = "mskcc"
 )
 
@@ -29,6 +31,14 @@ type Testset struct {
 }
 
 func TestAnnotateMutations(t *testing.T) {
+
+	ctx := context.Background()
+
+	gn, err := NewGNAnnotatorService(ctx, token, gnURL)
+	if err != nil {
+		t.Fatalf("Failed to create a GNAnnotatorService: %v", err)
+	}
+
 	testset := readTestSetJSON(t, mutationRecordsJSON) // this is a TempoMessage struct with X events for testing (completely populated)
 	// for every tempo message in the set set
 	for _, tm := range testset.Records {
@@ -37,8 +47,11 @@ func TestAnnotateMutations(t *testing.T) {
 		b, _ := json.Marshal(tm)
 		json.Unmarshal(b, &testtm)
 		// annotate and compare
-		AnnotateTempoMessageEvents(isoformOverrideString, &testtm)
-		for i2, event := range(testtm.Events) {
+		err = gn.AnnotateTempoMessageEvents(isoformOverrideString, &testtm)
+		if err != nil {
+			t.Logf("Error returned from AnnotateTempMessageEvents, skipping to next MAF record: %q", err)
+		}
+		for i2, event := range testtm.Events {
 			assertNoError(t, tm.CmoSampleId, event, tm.Events[i2])
 		}
 	}
