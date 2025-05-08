@@ -1,6 +1,6 @@
-module genome-nexus-go
+module github.com/genome-nexus/genome-nexus-go
 
-go 1.24
+go 1.24.2
 
 require (
 	github.com/genome-nexus/genome-nexus-go-api-client v0.0.0-20250210221327-decebe8bc9f5
