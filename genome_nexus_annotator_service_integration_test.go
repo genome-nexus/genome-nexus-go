@@ -30,6 +30,21 @@ type Testset struct {
 	Records []tt.TempoMessage `json:"records"`
 }
 
+func TestGetGenomeNexusInfo(t *testing.T) {
+	ctx := context.Background()
+
+	gn, err := NewGNAnnotatorService(ctx, token, gnURL)
+	if err != nil {
+		t.Fatalf("Failed to create a GNAnnotatorService: %v", err)
+	}
+
+	info, err := gn.GetGenomeNexusInfo()
+	if err != nil {
+		t.Fatalf("Error getting Genome Nexus Vep Version: %v", err)
+	}
+	t.Logf("Ensembl VEP cache version: %s", *info.GetVep().Cache.Version)
+}
+
 func TestAnnotateMutations(t *testing.T) {
 
 	ctx := context.Background()

@@ -10,6 +10,7 @@ import (
 )
 
 type GNAnnotator interface {
+	GetGenomeNexusInfo() (*gnapi.AggregateSourceInfo, error)
 	AnnotateTempoMessageEvents(isoformOverrideSource string, tm *tt.TempoMessage) error
 }
 
@@ -36,6 +37,14 @@ func NewGNAnnotatorService(ctx context.Context, token, gnURL string) (GNAnnotato
 	}
 	return GNAnnotatorService{client: client, ctxAccessToken: ctx, token: token}, nil
 
+}
+
+func (gn GNAnnotatorService) GetGenomeNexusInfo() (*gnapi.AggregateSourceInfo, error) {
+	resp, _, err := gn.client.InfoControllerApi.FetchVersionGET(gn.ctxAccessToken).Execute()
+	if err != nil {
+		return resp, fmt.Errorf("Genome Nexus request failed: %v", err)
+	}
+	return resp, nil
 }
 
 func (gn GNAnnotatorService) AnnotateTempoMessageEvents(isoformOverrideSource string, tm *tt.TempoMessage) error {
