@@ -114,7 +114,7 @@ func (gn GNAnnotatorService) mapResponseToEvent(variantAnnotation gnapi.VariantA
 	event.NcbiBuild = resolveAssemblyName(variantAnnotation)           // annotationUtil.resolveAssemblyName(gnResponse, mRecord)
 	event.HugoSymbol = resolveHugoSymbol(canonicalTranscript)
 	event.EntrezGeneId = resolveEntrezGeneId(canonicalTranscript)
-	event.VariantClassification = *canonicalTranscript.VariantClassification // annotationUtil.resolveVariantClassification(gnResponse, canonicalTranscript, mRecord)
+	event.VariantClassification = resolveVariantClassification(canonicalTranscript, *event) // annotationUtil.resolveVariantClassification(gnResponse, canonicalTranscript, mRecord)
 	event.VariantType = resolveVariantType(variantAnnotation)                // annotationUtil.resolveVariantType(gnResponse)
 	event.DbsnpRs = resolveDbSnpRs(variantAnnotation)                        // 	annotationUtil.resolveDbSnpRs(gnResponse, mRecord)
 	event.Hgvsc = resolveHgvsc(canonicalTranscript)                          // annotationUtil.resolveHgvsc(canonicalTranscript)
