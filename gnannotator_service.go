@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	gnapi "github.com/genome-nexus/genome-nexus-go-api-client/genome-nexus-public-api"
-	tt "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v1/go"
+	tt "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v2/go"
 )
 
 type GNAnnotator interface {
@@ -75,7 +75,7 @@ func (gn GNAnnotatorService) AnnotateTempoMessageEvents(isoformOverrideSource st
 
 func (gn GNAnnotatorService) getGenomicLocation(e *tt.Event) gnapi.GenomicLocation {
 	start, _ := strconv.ParseInt(e.StartPosition, 10, 32)
-	end, _ := strconv.ParseInt(e.StartPosition, 10, 32)
+	end, _ := strconv.ParseInt(e.EndPosition, 10, 32)
 
 	gloc := gnapi.NewGenomicLocation(e.Chromosome,
 		int32(start),

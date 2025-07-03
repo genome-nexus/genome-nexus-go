@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	tt "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v1/go"
+	tt "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v2/go"
 )
 
 // testdata generated using genome-nexus-annotation-pipeline (Java) annotated MAF
@@ -21,7 +21,7 @@ import (
 
 const (
 	token                 = ""
-	gnURL                 = "http://www.genomenexus.org"
+	gnURL                 = "https://www.genomenexus.org"
 	mutationRecordsJSON   = "testdata/tempo_message.annotated.json"
 	isoformOverrideString = "mskcc"
 )
