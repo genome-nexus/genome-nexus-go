@@ -79,8 +79,6 @@ func (gn GNAnnotatorService) AnnotateTempoMessageEvents(
 		var key string
 		if variantAnnotation.OriginalVariantQuery != "" {
 			key = variantAnnotation.OriginalVariantQuery
-		} else if variantAnnotation.AnnotationSummary != nil && variantAnnotation.AnnotationSummary.GenomicLocation != nil {
-			key = buildGenomicLocationKey(*variantAnnotation.AnnotationSummary.GenomicLocation)
 		} else {
 			continue
 		}
@@ -261,5 +259,5 @@ func buildGenomicLocationKey(gl gnapi.GenomicLocation) string {
 		variantAllele = *v
 	}
 
-	return fmt.Sprintf("%s:%d:%d:%s:%s", chromosome, start, end, referenceAllele, variantAllele)
+	return fmt.Sprintf("%s,%d,%d,%s,%s", chromosome, start, end, referenceAllele, variantAllele)
 }
