@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	gnapi "github.com/genome-nexus/genome-nexus-go-api-client/genome-nexus-public-api"
-	tempotype "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v2/go"
+	tempotype "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v3/go"
 )
 
 /*

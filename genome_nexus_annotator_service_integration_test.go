@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	tt "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v2/go"
+	tt "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v3/go"
 )
 
 // testdata generated using genome-nexus-annotation-pipeline (Java) annotated MAF

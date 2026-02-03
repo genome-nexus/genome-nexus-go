@@ -2,10 +2,8 @@ github.com/genome-nexus/genome-nexus-go-api-client v0.0.0-20250210221327-decebe8
 github.com/genome-nexus/genome-nexus-go-api-client v0.0.0-20250210221327-decebe8bc9f5/go.mod h1:qTX3npaaL2wO0ODCuFyfyM4mCZSz1zzYhYn9uoF/YHM=
 github.com/google/go-cmp v0.5.5 h1:Khx7svrCpmxxtHBq5j2mp/xVjsi8hQMfNLvJFAlrGgU=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
-github.mskcc.org/cdsi/cdsi-protobuf/tempo v0.0.0-20250415074137-c14c128750a1 h1:Ir7F8jwlGepI9qrwK3/0ghzO5A1vnkwHGS8C2OjlMxc=
-github.mskcc.org/cdsi/cdsi-protobuf/tempo v0.0.0-20250415074137-c14c128750a1/go.mod h1:44+7sRJBb1H8FHmIrH8kZYYmUqDsVmTa681es8rl7tA=
-github.mskcc.org/cdsi/cdsi-protobuf/tempo v0.0.0-20250702180837-c19c6f7bdd9f h1:7fc43ESnbupftP4GGFe5a6ur7MU0Ft4Rgv0tm+dcWfE=
-github.mskcc.org/cdsi/cdsi-protobuf/tempo v0.0.0-20250702180837-c19c6f7bdd9f/go.mod h1:44+7sRJBb1H8FHmIrH8kZYYmUqDsVmTa681es8rl7tA=
+github.mskcc.org/cdsi/cdsi-protobuf/tempo v0.0.0-20260129141750-d6ecdc2ec6b2 h1:JN8Zd1MKVnEym/Ev7QOgT2tccDziiT2i+QE/KOKjkVI=
+github.mskcc.org/cdsi/cdsi-protobuf/tempo v0.0.0-20260129141750-d6ecdc2ec6b2/go.mod h1:44+7sRJBb1H8FHmIrH8kZYYmUqDsVmTa681es8rl7tA=
 golang.org/x/oauth2 v0.30.0 h1:dnDm7JmhM45NNpd8FDDeLhK6FwqbOf4MLCM9zb1BOHI=
 golang.org/x/oauth2 v0.30.0/go.mod h1:B++QgG3ZKulg6sRPGD/mqlHQs5rB3Ml9erfeDY7xKlU=
 golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 h1:E7g+9GITq07hpfrRu66IVDexMakfv52eLZ2CXBWiKr4=

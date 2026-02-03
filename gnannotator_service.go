@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	gnapi "github.com/genome-nexus/genome-nexus-go-api-client/genome-nexus-public-api"
-	tt "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v2/go"
+	tt "github.mskcc.org/cdsi/cdsi-protobuf/tempo/generated/v3/go"
 )
 
 type GNAnnotator interface {
