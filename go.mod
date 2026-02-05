@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	github.com/genome-nexus/genome-nexus-go-api-client v0.0.0-20250210221327-decebe8bc9f5
-	github.mskcc.org/cdsi/cdsi-protobuf/tempo v0.0.0-20260205165703-c31aff29b357
+	github.mskcc.org/cdsi/cdsi-protobuf/tempo v0.0.0-20260205195457-e64840ffce73
 )
 
 require (
