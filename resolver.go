@@ -1,6 +1,7 @@
 package genome_nexus_annotator_go
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -369,4 +370,423 @@ func resolveRefAndTumorSeqAlleles(gnResponse gnapi.VariantAnnotation, event temp
 	resolvedTumorSeqAllele1 = resolvedReferenceAllele
 
 	return resolvedReferenceAllele, resolvedTumorSeqAllele1, resolvedTumorSeqAllele2
+}
+
+// getCanonicalRawTranscript finds the TranscriptConsequence in transcript_consequences
+// matching the canonical transcript from the annotation summary.
+func getCanonicalRawTranscript(va gnapi.VariantAnnotation) *gnapi.TranscriptConsequence {
+	canonicalSummary := getCanonicalTranscript(va)
+	if canonicalSummary == (gnapi.TranscriptConsequenceSummary{}) {
+		return nil
+	}
+	for i := range va.TranscriptConsequences {
+		if va.TranscriptConsequences[i].TranscriptId == canonicalSummary.TranscriptId {
+			return &va.TranscriptConsequences[i]
+		}
+	}
+	return nil
+}
+
+// getGnomadExomeAF returns the gnomAD exome AlleleFrequency or nil if unavailable.
+func getGnomadExomeAF(va gnapi.VariantAnnotation) *gnapi.AlleleFrequency {
+	if va.MyVariantInfo == nil {
+		return nil
+	}
+	mviAnnot, ok := va.MyVariantInfo.GetAnnotationOk()
+	if !ok || mviAnnot == nil {
+		return nil
+	}
+	gnomad, ok := mviAnnot.GetGnomadExomeOk()
+	if !ok || gnomad == nil {
+		return nil
+	}
+	af, ok := gnomad.GetAlleleFrequencyOk()
+	if !ok || af == nil {
+		return nil
+	}
+	return af
+}
+
+// getMutationAssessor returns the MutationAssessor annotation or nil if unavailable.
+func getMutationAssessorAnnot(va gnapi.VariantAnnotation) *gnapi.MutationAssessor {
+	if va.MutationAssessor == nil {
+		return nil
+	}
+	ma, ok := va.MutationAssessor.GetAnnotationOk()
+	if !ok || ma == nil {
+		return nil
+	}
+	return ma
+}
+
+func formatFloat(f float64) string {
+	return strconv.FormatFloat(f, 'g', -1, 64)
+}
+
+func int32SliceToString(vals []int32) string {
+	strs := make([]string, len(vals))
+	for i, v := range vals {
+		strs[i] = strconv.Itoa(int(v))
+	}
+	return strings.Join(strs, ",")
+}
+
+func stringSliceToString(vals []string) string {
+	return strings.Join(vals, ",")
+}
+
+func domainsToString(domains []map[string]string) string {
+	parts := make([]string, 0, len(domains))
+	for _, d := range domains {
+		parts = append(parts, fmt.Sprintf("%v", d))
+	}
+	return strings.Join(parts, ";")
+}
+
+// gnomAD resolvers (from MyVariantInfo.GnomadExome.AlleleFrequency)
+
+func resolveGnomadAF(va gnapi.VariantAnnotation) string {
+	af := getGnomadExomeAF(va)
+	if af == nil {
+		return ""
+	}
+	return formatFloat(af.Af)
+}
+
+func resolveGnomadAfrAF(va gnapi.VariantAnnotation) string {
+	af := getGnomadExomeAF(va)
+	if af == nil {
+		return ""
+	}
+	return formatFloat(af.AfAfr)
+}
+
+func resolveGnomadAmrAF(va gnapi.VariantAnnotation) string {
+	af := getGnomadExomeAF(va)
+	if af == nil {
+		return ""
+	}
+	return formatFloat(af.AfAmr)
+}
+
+func resolveGnomadAsjAF(va gnapi.VariantAnnotation) string {
+	af := getGnomadExomeAF(va)
+	if af == nil {
+		return ""
+	}
+	return formatFloat(af.AfAsj)
+}
+
+func resolveGnomadEasAF(va gnapi.VariantAnnotation) string {
+	af := getGnomadExomeAF(va)
+	if af == nil {
+		return ""
+	}
+	return formatFloat(af.AfEas)
+}
+
+func resolveGnomadFinAF(va gnapi.VariantAnnotation) string {
+	af := getGnomadExomeAF(va)
+	if af == nil {
+		return ""
+	}
+	return formatFloat(af.AfFin)
+}
+
+func resolveGnomadNfeAF(va gnapi.VariantAnnotation) string {
+	af := getGnomadExomeAF(va)
+	if af == nil {
+		return ""
+	}
+	return formatFloat(af.AfNfe)
+}
+
+func resolveGnomadOthAF(va gnapi.VariantAnnotation) string {
+	af := getGnomadExomeAF(va)
+	if af == nil {
+		return ""
+	}
+	return formatFloat(af.AfOth)
+}
+
+func resolveGnomadSasAF(va gnapi.VariantAnnotation) string {
+	af := getGnomadExomeAF(va)
+	if af == nil {
+		return ""
+	}
+	return formatFloat(af.AfSas)
+}
+
+// Mutation Assessor resolvers
+
+func resolveMaFunctionalImpactScore(va gnapi.VariantAnnotation) string {
+	ma := getMutationAssessorAnnot(va)
+	if ma == nil || ma.FunctionalImpactScore == nil {
+		return ""
+	}
+	return formatFloat(*ma.FunctionalImpactScore)
+}
+
+func resolveMaFunctionalImpact(va gnapi.VariantAnnotation) string {
+	ma := getMutationAssessorAnnot(va)
+	if ma == nil || ma.FunctionalImpact == nil {
+		return ""
+	}
+	return *ma.FunctionalImpact
+}
+
+func resolveMaLinkMSA(va gnapi.VariantAnnotation) string {
+	ma := getMutationAssessorAnnot(va)
+	if ma == nil || ma.MsaLink == nil {
+		return ""
+	}
+	return *ma.MsaLink
+}
+
+func resolveMaLinkPDB(va gnapi.VariantAnnotation) string {
+	ma := getMutationAssessorAnnot(va)
+	if ma == nil || ma.PdbLink == nil {
+		return ""
+	}
+	return *ma.PdbLink
+}
+
+// VEP field resolvers (from TranscriptConsequence in transcript_consequences)
+
+func resolveVepAminoAcids(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.AminoAcids == nil {
+		return ""
+	}
+	return *tc.AminoAcids
+}
+
+func resolveVepBiotype(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.Biotype == nil {
+		return ""
+	}
+	return *tc.Biotype
+}
+
+func resolveVepCanonical(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.Canonical == nil {
+		return ""
+	}
+	return *tc.Canonical
+}
+
+func resolveVepCcds(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.Ccds == nil {
+		return ""
+	}
+	return *tc.Ccds
+}
+
+func resolveVepCdnaPosition(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.CdnaPosition == nil {
+		return ""
+	}
+	return *tc.CdnaPosition
+}
+
+func resolveVepCdsPosition(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.CdsPosition == nil {
+		return ""
+	}
+	return *tc.CdsPosition
+}
+
+func resolveVepClinSig(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || len(tc.ClinSig) == 0 {
+		return ""
+	}
+	return stringSliceToString(tc.ClinSig)
+}
+
+func resolveVepDistance(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.Distance == nil {
+		return ""
+	}
+	return strconv.Itoa(int(*tc.Distance))
+}
+
+func resolveVepDomains(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || len(tc.Domains) == 0 {
+		return ""
+	}
+	return domainsToString(tc.Domains)
+}
+
+func resolveVepGeneId(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.GeneId == nil {
+		return ""
+	}
+	return *tc.GeneId
+}
+
+func resolveVepGenePheno(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.GenePheno == nil {
+		return ""
+	}
+	return strconv.Itoa(int(*tc.GenePheno))
+}
+
+func resolveVepGeneSymbol(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.GeneSymbol == nil {
+		return ""
+	}
+	return *tc.GeneSymbol
+}
+
+func resolveVepHgncId(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.HgncId == nil {
+		return ""
+	}
+	return *tc.HgncId
+}
+
+func resolveVepHgvsOffset(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.HgvsOffset == nil {
+		return ""
+	}
+	return strconv.Itoa(int(*tc.HgvsOffset))
+}
+
+func resolveVepHighInfPos(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.HighInfPos == nil {
+		return ""
+	}
+	return *tc.HighInfPos
+}
+
+func resolveVepImpact(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.Impact == nil {
+		return ""
+	}
+	return *tc.Impact
+}
+
+func resolveVepIntron(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.Intron == nil {
+		return ""
+	}
+	return *tc.Intron
+}
+
+func resolveVepMinimised(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.Minimised == nil {
+		return ""
+	}
+	return strconv.Itoa(int(*tc.Minimised))
+}
+
+func resolveVepMotifName(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.MotifName == nil {
+		return ""
+	}
+	return *tc.MotifName
+}
+
+func resolveVepMotifPos(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.MotifPos == nil {
+		return ""
+	}
+	return strconv.Itoa(int(*tc.MotifPos))
+}
+
+func resolveVepMotifScoreChange(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.MotifScoreChange == nil {
+		return ""
+	}
+	return formatFloat(*tc.MotifScoreChange)
+}
+
+func resolveVepPheno(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || len(tc.Pheno) == 0 {
+		return ""
+	}
+	return int32SliceToString(tc.Pheno)
+}
+
+func resolveVepPick(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.Pick == nil {
+		return ""
+	}
+	return strconv.Itoa(int(*tc.Pick))
+}
+
+func resolveVepProteinId(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.ProteinId == nil {
+		return ""
+	}
+	return *tc.ProteinId
+}
+
+func resolveVepPubmed(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || len(tc.Pubmed) == 0 {
+		return ""
+	}
+	return int32SliceToString(tc.Pubmed)
+}
+
+func resolveVepSomatic(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || len(tc.Somatic) == 0 {
+		return ""
+	}
+	return int32SliceToString(tc.Somatic)
+}
+
+func resolveVepSwissprot(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || len(tc.Swissprot) == 0 {
+		return ""
+	}
+	return stringSliceToString(tc.Swissprot)
+}
+
+func resolveVepSymbolSource(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.SymbolSource == nil {
+		return ""
+	}
+	return *tc.SymbolSource
+}
+
+func resolveVepTrembl(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || len(tc.Trembl) == 0 {
+		return ""
+	}
+	return stringSliceToString(tc.Trembl)
+}
+
+func resolveVepTsl(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.Tsl == nil {
+		return ""
+	}
+	return strconv.Itoa(int(*tc.Tsl))
+}
+
+func resolveVepUniparc(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.Uniparc == nil {
+		return ""
+	}
+	return *tc.Uniparc
+}
+
+func resolveVepVariantAllele(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.VariantAllele == nil {
+		return ""
+	}
+	return *tc.VariantAllele
+}
+
+func resolveVepVariantClass(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.VariantClass == nil {
+		return ""
+	}
+	return *tc.VariantClass
+}
+
+func resolveVepAllEffects(tc *gnapi.TranscriptConsequence) string {
+	if tc == nil || tc.AllEffects == nil {
+		return ""
+	}
+	return *tc.AllEffects
 }

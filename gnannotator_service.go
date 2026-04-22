@@ -32,15 +32,12 @@ func NewGNAnnotatorService(ctx context.Context, token, gnURL string) (GNAnnotato
 		},
 	}
 	client := gnapi.NewAPIClient(cfg)
-	if len(token) > 0 {
-		ctx = context.WithValue(ctx, gnapi.ContextAccessToken, token)
-	}
 	return GNAnnotatorService{client: client, ctxAccessToken: ctx, token: token}, nil
 
 }
 
 func (gn GNAnnotatorService) GetGenomeNexusInfo() (*gnapi.AggregateSourceInfo, error) {
-	resp, _, err := gn.client.InfoControllerApi.FetchVersionGET(gn.ctxAccessToken).Execute()
+	resp, _, err := gn.client.InfoControllerAPI.FetchVersionGET(gn.ctxAccessToken).Execute()
 	if err != nil {
 		return resp, fmt.Errorf("Genome Nexus request failed: %v", err)
 	}
@@ -119,8 +116,8 @@ func (gn GNAnnotatorService) getVariantAnnotations(
 	genomicLocations []gnapi.GenomicLocation,
 ) ([]gnapi.VariantAnnotation, error) {
 	fields := make([]string, 0)
-	fields = append(fields, "annotation_summary")
-	x := gn.client.AnnotationControllerApi.FetchVariantAnnotationByGenomicLocationPOST(gn.ctxAccessToken).
+	fields = append(fields, "annotation_summary", "my_variant_info", "mutation_assessor")
+	x := gn.client.AnnotationControllerAPI.FetchVariantAnnotationByGenomicLocationPOST(gn.ctxAccessToken).
 		GenomicLocations(genomicLocations)
 	x = x.Fields(fields)
 	x = x.IsoformOverrideSource(isoformOverrideSource)
@@ -222,6 +219,61 @@ func (gn GNAnnotatorService) mapResponseToEvent(
 		"true",
 	)
 	// ======================================
+
+	// gnomAD allele frequencies (from MyVariantInfo.GnomadExome)
+	event.GnomadAf = resolveGnomadAF(variantAnnotation)
+	event.GnomadAfrAf = resolveGnomadAfrAF(variantAnnotation)
+	event.GnomadAmrAf = resolveGnomadAmrAF(variantAnnotation)
+	event.GnomadAsjAf = resolveGnomadAsjAF(variantAnnotation)
+	event.GnomadEasAf = resolveGnomadEasAF(variantAnnotation)
+	event.GnomadFinAf = resolveGnomadFinAF(variantAnnotation)
+	event.GnomadNfeAf = resolveGnomadNfeAF(variantAnnotation)
+	event.GnomadOthAf = resolveGnomadOthAF(variantAnnotation)
+	event.GnomadSasAf = resolveGnomadSasAF(variantAnnotation)
+
+	// Mutation Assessor
+	event.MaFunctionalImpactScore = resolveMaFunctionalImpactScore(variantAnnotation)
+	event.MaFunctionalImpact = resolveMaFunctionalImpact(variantAnnotation)
+	event.MaLinkMsa = resolveMaLinkMSA(variantAnnotation)
+	event.MaLinkPdb = resolveMaLinkPDB(variantAnnotation)
+
+	// VEP transcript consequence fields
+	rawTC := getCanonicalRawTranscript(variantAnnotation)
+	event.VepAminoAcids = resolveVepAminoAcids(rawTC)
+	event.VepBiotype = resolveVepBiotype(rawTC)
+	event.VepCanonical = resolveVepCanonical(rawTC)
+	event.VepCcds = resolveVepCcds(rawTC)
+	event.VepCdnaPosition = resolveVepCdnaPosition(rawTC)
+	event.VepCdsPosition = resolveVepCdsPosition(rawTC)
+	event.VepClinSig = resolveVepClinSig(rawTC)
+	event.VepDistance = resolveVepDistance(rawTC)
+	event.VepDomains = resolveVepDomains(rawTC)
+	event.VepGeneId = resolveVepGeneId(rawTC)
+	event.VepGenePheno = resolveVepGenePheno(rawTC)
+	event.VepGeneSymbol = resolveVepGeneSymbol(rawTC)
+	event.VepHgncId = resolveVepHgncId(rawTC)
+	event.VepHgvsOffset = resolveVepHgvsOffset(rawTC)
+	event.VepHighInfPos = resolveVepHighInfPos(rawTC)
+	event.VepImpact = resolveVepImpact(rawTC)
+	event.VepIntron = resolveVepIntron(rawTC)
+	event.VepMinimised = resolveVepMinimised(rawTC)
+	event.VepMotifName = resolveVepMotifName(rawTC)
+	event.VepMotifPos = resolveVepMotifPos(rawTC)
+	event.VepMotifScoreChange = resolveVepMotifScoreChange(rawTC)
+	event.VepPheno = resolveVepPheno(rawTC)
+	event.VepPick = resolveVepPick(rawTC)
+	event.VepProteinId = resolveVepProteinId(rawTC)
+	event.VepPubmed = resolveVepPubmed(rawTC)
+	event.VepSomatic = resolveVepSomatic(rawTC)
+	event.VepSwissprot = resolveVepSwissprot(rawTC)
+	event.VepSymbolSource = resolveVepSymbolSource(rawTC)
+	event.VepTrembl = resolveVepTrembl(rawTC)
+	event.VepTsl = resolveVepTsl(rawTC)
+	event.VepUniparc = resolveVepUniparc(rawTC)
+	event.VepVariantAllele = resolveVepVariantAllele(rawTC)
+	event.VepVariantClass = resolveVepVariantClass(rawTC)
+	event.VepAllEffects = resolveVepAllEffects(rawTC)
+
 	event.AnnotationStatus = "SUCCESS"
 }
 
