@@ -2,6 +2,8 @@ github.com/genome-nexus/genome-nexus-go-api-client v1.0.6 h1:Nimd8izmeRCutJICdEE
 github.com/genome-nexus/genome-nexus-go-api-client v1.0.6/go.mod h1:qTX3npaaL2wO0ODCuFyfyM4mCZSz1zzYhYn9uoF/YHM=
 github.com/genome-nexus/genome-nexus-go-api-client v1.0.8 h1:7qUzrWQWuZ6bCxUF4TTmhgHuY+cWGV2PD47s075FRXE=
 github.com/genome-nexus/genome-nexus-go-api-client v1.0.8/go.mod h1:qTX3npaaL2wO0ODCuFyfyM4mCZSz1zzYhYn9uoF/YHM=
+github.com/genome-nexus/genome-nexus-go-api-client v1.0.10 h1:UrxWoSw2OtJ9dV+TZQ5lLcqhjt5iPVK48QX/kHhshEg=
+github.com/genome-nexus/genome-nexus-go-api-client v1.0.10/go.mod h1:qTX3npaaL2wO0ODCuFyfyM4mCZSz1zzYhYn9uoF/YHM=
 github.com/google/go-cmp v0.5.5 h1:Khx7svrCpmxxtHBq5j2mp/xVjsi8hQMfNLvJFAlrGgU=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.mskcc.org/cdsi/cdsi-protobuf/tempo v0.0.0-20260423134801-614ced4d6bf8 h1:sGAP2Ugl8gZNtYv6zpz6t01nmVolmPgDvzuiszfFesc=
