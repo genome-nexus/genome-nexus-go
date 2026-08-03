@@ -3,7 +3,7 @@ module github.com/genome-nexus/genome-nexus-go
 go 1.24.2
 
 require (
-	github.com/genome-nexus/genome-nexus-go-api-client v1.0.6
+	github.com/genome-nexus/genome-nexus-go-api-client v1.0.8
 	github.mskcc.org/cdsi/cdsi-protobuf/tempo v0.0.0-20260423134801-614ced4d6bf8
 )
 
